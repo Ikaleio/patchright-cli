@@ -1,6 +1,6 @@
 # npm releases
 
-The public npm package is `prcli`. A successful `CI` run on `main` triggers `.github/workflows/release.yml`. Pull-request CI runs do not publish. The release uses the exact commit checked by CI.
+The public npm package is `@ikaleio/prcli`. A successful `CI` run on `main` triggers `.github/workflows/release.yml`. Pull-request CI runs do not publish. The release uses the exact commit checked by CI.
 
 ## Version and package contents
 
@@ -17,11 +17,11 @@ A package must exist before npm can configure its Trusted Publisher. The maintai
 1. Log in with `npm login`.
 2. Run **Publish npm** with **dry-run** enabled to build and check the package.
 3. Download the `npm-package` artifact from that run.
-4. Publish its tarball with `npm publish ./prcli-<version>.tgz --access public`.
+4. Publish its tarball with `npm publish ./ikaleio-prcli-<version>.tgz --access public`.
 5. Create the Trusted Publisher:
 
    ```bash
-   npm trust github prcli --repo Ikaleio/patchright-cli --file release.yml --allow-publish --yes
+   npm trust github @ikaleio/prcli --repo Ikaleio/patchright-cli --file release.yml --allow-publish --yes
    ```
 
    npm can require two-factor authentication for this step. The equivalent npm package settings use GitHub owner `Ikaleio`, repository `patchright-cli`, workflow filename `release.yml`, and permission for direct `npm publish`. Leave the environment name empty.
@@ -34,4 +34,4 @@ The workflow uses GitHub OIDC credentials. It does not need an `NPM_TOKEN` repos
 
 **Actions → Publish npm → Run workflow** builds the selected `main` commit. Enable **dry-run** to produce and check a tarball without publishing. A failed platform build prevents publication.
 
-For a failed publish, fix authentication and re-run the failed job. npm versions cannot be overwritten. Each new workflow run generates another version. The published version is checked with `npm view prcli@<version> version`.
+For a failed publish, fix authentication and re-run the failed job. npm versions cannot be overwritten. Each new workflow run generates another version. The published version is checked with `npm view @ikaleio/prcli@<version> version`.

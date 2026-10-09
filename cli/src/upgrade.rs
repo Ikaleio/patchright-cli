@@ -3,7 +3,7 @@ use std::path::Path;
 use std::process::{exit, Command, Stdio};
 
 const CURRENT_VERSION: &str = env!("CARGO_PKG_VERSION");
-const NPM_REGISTRY_URL: &str = "https://registry.npmjs.org/prcli/latest";
+const NPM_REGISTRY_URL: &str = "https://registry.npmjs.org/@ikaleio%2fprcli/latest";
 
 enum InstallMethod {
     Npm,
@@ -54,7 +54,7 @@ fn detect_install_method() -> InstallMethod {
         }
 
         // Fallback: infer from executable path
-        let path_str = real_path.to_string_lossy();
+        let path_str = real_path.to_string_lossy().replace('\\', "/");
 
         if path_str.contains("/pnpm/") || path_str.contains("/pnpm-global/") {
             return InstallMethod::Pnpm;
@@ -68,26 +68,30 @@ fn detect_install_method() -> InstallMethod {
             return InstallMethod::Bun;
         }
 
-        if path_str.contains("node_modules/prcli") || path_str.contains("node_modules\\prcli") {
+        if path_str.contains("node_modules/@ikaleio/prcli/") {
             return InstallMethod::Npm;
         }
     }
 
     // Last resort: probe package managers via subprocess
 
-    if command_output_contains("pnpm", &["list", "-g", "prcli", "--depth=0"], "prcli") {
+    if command_output_contains(
+        "pnpm",
+        &["list", "-g", "@ikaleio/prcli", "--depth=0"],
+        "@ikaleio/prcli",
+    ) {
         return InstallMethod::Pnpm;
     }
 
-    if command_output_contains("yarn", &["global", "list", "--depth=0"], "prcli") {
+    if command_output_contains("yarn", &["global", "list", "--depth=0"], "@ikaleio/prcli") {
         return InstallMethod::Yarn;
     }
 
-    if command_output_contains("bun", &["pm", "ls", "-g"], "prcli") {
+    if command_output_contains("bun", &["pm", "ls", "-g"], "@ikaleio/prcli") {
         return InstallMethod::Bun;
     }
 
-    if command_succeeds("npm", &["list", "-g", "prcli", "--depth=0"]) {
+    if command_succeeds("npm", &["list", "-g", "@ikaleio/prcli", "--depth=0"]) {
         return InstallMethod::Npm;
     }
 
@@ -117,25 +121,25 @@ fn run_upgrade_command(method: &InstallMethod) -> bool {
     let (cmd, args, display): (&str, &[&str], &str) = match method {
         InstallMethod::Npm => (
             "npm",
-            &["install", "-g", "prcli@latest"],
-            "npm install -g prcli@latest",
+            &["install", "-g", "@ikaleio/prcli@latest"],
+            "npm install -g @ikaleio/prcli@latest",
         ),
         InstallMethod::Pnpm => (
             "pnpm",
-            &["add", "-g", "prcli@latest"],
-            "pnpm add -g prcli@latest",
+            &["add", "-g", "@ikaleio/prcli@latest"],
+            "pnpm add -g @ikaleio/prcli@latest",
         ),
         // NOTE: `yarn global` is Yarn Classic (v1) only; Yarn Berry (v2+) removed it.
         // Users on Yarn v2+ won't reach this path — detection falls through to Unknown.
         InstallMethod::Yarn => (
             "yarn",
-            &["global", "add", "prcli@latest"],
-            "yarn global add prcli@latest",
+            &["global", "add", "@ikaleio/prcli@latest"],
+            "yarn global add @ikaleio/prcli@latest",
         ),
         InstallMethod::Bun => (
             "bun",
-            &["install", "-g", "prcli@latest"],
-            "bun install -g prcli@latest",
+            &["install", "-g", "@ikaleio/prcli@latest"],
+            "bun install -g @ikaleio/prcli@latest",
         ),
         InstallMethod::Unknown => return false,
     };
@@ -200,10 +204,10 @@ pub fn run_upgrade() {
             color::error_indicator()
         );
         eprintln!("  To update manually, run one of:");
-        eprintln!("    npm install -g prcli@latest       # npm");
-        eprintln!("    pnpm add -g prcli@latest          # pnpm");
-        eprintln!("    yarn global add prcli@latest     # Yarn Classic");
-        eprintln!("    bun install -g prcli@latest      # Bun");
+        eprintln!("    npm install -g @ikaleio/prcli@latest       # npm");
+        eprintln!("    pnpm add -g @ikaleio/prcli@latest          # pnpm");
+        eprintln!("    yarn global add @ikaleio/prcli@latest     # Yarn Classic");
+        eprintln!("    bun install -g @ikaleio/prcli@latest      # Bun");
         exit(1);
     }
 

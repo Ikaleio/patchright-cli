@@ -4178,10 +4178,10 @@ Cloudflare automatic challenges wait up to 20s within the navigation timeout.
   AI_GATEWAY_MODEL               Default AI model (default: anthropic/claude-sonnet-4.6, or --model flag)
 
 Install:
-  npm install -g prcli                    # npm package with bundled native binaries
-  bun install -g prcli                    # Bun
+  npm install -g @ikaleio/prcli            # npm package with bundled native binaries
+  bun install -g @ikaleio/prcli            # Bun
   prcli install                          # Download Patchright Chromium if Chrome is absent
-  prcli upgrade                          # Upgrade the prcli npm package
+  prcli upgrade                          # Upgrade the @ikaleio/prcli npm package
 
 Examples:
   agent-browser open example.com

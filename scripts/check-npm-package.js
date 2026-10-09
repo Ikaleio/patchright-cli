@@ -24,10 +24,10 @@ for (const path of required) {
     throw new Error(`Native binary is too small: ${path}`);
   }
 }
-if (pkg.name !== 'prcli') throw new Error(`Unexpected npm package name: ${pkg.name}`);
+if (pkg.name !== '@ikaleio/prcli') throw new Error(`Unexpected npm package name: ${pkg.name}`);
 const forbidden = pkg.files.find(({ path }) =>
   /^(artifacts|node_modules|cli\/target)\//.test(path) ||
   /(^|\/)\.env($|\.)/.test(path) || path === 'bin/.install-method'
 );
 if (forbidden) throw new Error(`Unexpected npm package file: ${forbidden.path}`);
-console.log(`prcli@${pkg.version}: ${pkg.files.length} files, ${(pkg.size / 1024 / 1024).toFixed(1)} MiB packed`);
+console.log(`${pkg.name}@${pkg.version}: ${pkg.files.length} files, ${(pkg.size / 1024 / 1024).toFixed(1)} MiB packed`);

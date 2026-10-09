@@ -155,7 +155,7 @@ jobs:
           retention-days: 7
 
   publish:
-    name: Package and publish prcli
+    name: Package and publish @ikaleio/prcli
     needs: build-binaries
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -209,7 +209,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: npm-package
-          path: prcli-*.tgz
+          path: ikaleio-prcli-*.tgz
           if-no-files-found: error
           retention-days: 7
 
@@ -218,8 +218,8 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          if npm view "prcli@$VERSION" version >/dev/null 2>&1; then
-            echo "prcli@$VERSION is already published; skipping this retry."
+          if npm view "@ikaleio/prcli@$VERSION" version >/dev/null 2>&1; then
+            echo "@ikaleio/prcli@$VERSION is already published; skipping this retry."
           else
             npm publish --access public --tag latest
           fi
@@ -228,4 +228,4 @@ jobs:
         if: inputs.dry-run != true
         env:
           VERSION: ${{ steps.version.outputs.version }}
-        run: npm view "prcli@$VERSION" version
+        run: npm view "@ikaleio/prcli@$VERSION" version

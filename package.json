@@ -1,5 +1,5 @@
 {
-  "name": "prcli",
+  "name": "@ikaleio/prcli",
   "version": "0.38.1",
   "description": "agent-browser fork with a Patchright browser driver",
   "type": "module",

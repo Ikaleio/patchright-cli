@@ -14,10 +14,10 @@ See [the browser check report](BROWSER_CHECKS.md) for public fingerprint probes,
 
 ## Install this fork
 
-The npm package is named `prcli`. It bundles the Rust CLI for macOS, Linux (glibc 2.28 or later and musl), and Windows x64. Node.js 24 or later runs the CLI and the bundled Patchright daemon. The `patchright-cli` command remains an alias.
+The npm package is named `@ikaleio/prcli`. It bundles the Rust CLI for macOS, Linux (glibc 2.28 or later and musl), and Windows x64. Node.js 24 or later runs the CLI and the bundled Patchright daemon. The `patchright-cli` command remains an alias.
 
 ```bash
-npm install -g prcli
+npm install -g @ikaleio/prcli
 prcli install
 prcli --session research open https://example.com
 prcli --session research snapshot -i
@@ -25,7 +25,7 @@ prcli --session research close
 prcli upgrade
 ```
 
-With Bun, use `bun install -g prcli`. `upgrade` updates this fork's npm package with the detected package manager.
+With Bun, use `bun install -g @ikaleio/prcli`. `upgrade` updates this fork's npm package with the detected package manager.
 
 Successful `main` builds publish a new npm version automatically. See [NPM_RELEASE.md](NPM_RELEASE.md) for the publishing workflow and initial authentication setup.
 
@@ -52,7 +52,7 @@ This project derives from [vercel-labs/agent-browser](https://github.com/vercel-
 
 ## Upstream command reference
 
-The remaining sections describe upstream agent-browser. The `agent-browser` npm package, Homebrew formula, and Cargo crate below install the upstream project. Use `prcli` or build this repository from source for the Patchright engine. See [the Patchright guide](skill-data/core/references/patchright.md) for commands that this engine supports.
+The remaining sections describe upstream agent-browser. The `agent-browser` npm package, Homebrew formula, and Cargo crate below install the upstream project. Use `@ikaleio/prcli` or build this repository from source for the Patchright engine. See [the Patchright guide](skill-data/core/references/patchright.md) for commands that this engine supports.
 
 Browser automation CLI for AI agents. Fast native Rust CLI.
 
