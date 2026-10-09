@@ -5478,6 +5478,9 @@ async fn handle_content(state: &DaemonState) -> Result<Value, String> {
 }
 
 async fn handle_evaluate(cmd: &Value, state: &DaemonState) -> Result<Value, String> {
+    if cmd.get("isolated").and_then(Value::as_bool) == Some(true) {
+        return Err("eval --isolated requires --engine patchright".to_string());
+    }
     if let Some(ref wb) = state.webdriver_backend {
         if state.browser.is_none() {
             let script = cmd

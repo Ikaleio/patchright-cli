@@ -2271,6 +2271,10 @@ Executes JavaScript code in the browser context and returns the result.
 Options:
   -b, --base64         Decode script from base64 (avoids shell escaping issues)
   --stdin              Read script from stdin (useful for heredocs/multiline)
+  --isolated           Patchright only: use an isolated world (place before other options)
+
+Patchright eval reads page globals by default. Use --isolated for DOM queries on
+pages that hook JavaScript functions. Isolated scripts cannot read page globals.
 
 Global Options:
   --json               Output as JSON
@@ -4060,7 +4064,7 @@ Options:
   --action-policy <path>     Action policy JSON file (or AGENT_BROWSER_ACTION_POLICY)
   --confirm-actions <list>   Categories requiring confirmation (or AGENT_BROWSER_CONFIRM_ACTIONS)
   --confirm-interactive      Interactive confirmation prompts; auto-denies if stdin is not a TTY (or AGENT_BROWSER_CONFIRM_INTERACTIVE)
-  --engine <name>            Browser engine: chrome (default), lightpanda (or AGENT_BROWSER_ENGINE)
+  --engine <name>            Browser engine: chrome (default), lightpanda, patchright (or AGENT_BROWSER_ENGINE)
   --idle-timeout <time>      Shut down daemon after inactivity: 10s, 3m, 1h, or raw ms
                              (default: 1h; 0 disables; dashboard input resets the timer)
   --no-auto-dialog           Disable automatic dismissal of alert/beforeunload dialogs (or AGENT_BROWSER_NO_AUTO_DIALOG)
@@ -4153,7 +4157,15 @@ Environment:
   AGENT_BROWSER_CONFIRM_ACTIONS  Action categories requiring confirmation
   AGENT_BROWSER_CONFIRM_INTERACTIVE Enable interactive confirmation prompts
   AGENT_BROWSER_NO_AUTO_DIALOG   Disable automatic dismissal of alert/beforeunload dialogs
-  AGENT_BROWSER_ENGINE           Browser engine: chrome (default), lightpanda
+  AGENT_BROWSER_ENGINE           Browser engine: chrome (default), lightpanda, patchright
+  AGENT_BROWSER_PATCHRIGHT_RUNTIME Runtime for the Patchright daemon (default: bun)
+  AGENT_BROWSER_PATCHRIGHT_DAEMON  Override the bundled Patchright daemon path
+
+Patchright navigation JSON includes HTTP status and selected CDN response headers.
+Use eval --isolated for DOM scripts that should avoid page JavaScript hooks.
+Local Patchright sessions block non-proxied WebRTC UDP; direct calls can stop working.
+Local Patchright launches enable GPU selection; hardware acceleration needs usable drivers.
+Cloudflare automatic challenges wait up to 20s within the navigation timeout.
   AGENT_BROWSER_PLUGINS          JSON plugin registry override
   HTTP_PROXY / HTTPS_PROXY       Standard proxy env vars (fallback if AGENT_BROWSER_PROXY not set)
   ALL_PROXY                      SOCKS proxy (fallback for proxy)

@@ -591,6 +591,8 @@ fn apply_daemon_env(cmd: &mut Command, session: &str, opts: &DaemonOptions) {
 
 fn daemon_config_fingerprint(opts: &DaemonOptions) -> String {
     let mut hasher = std::collections::hash_map::DefaultHasher::new();
+    // Patchright uses a different daemon implementation and cannot reuse a native session.
+    (opts.engine == Some("patchright")).hash(&mut hasher);
     opts.debug.hash(&mut hasher);
     opts.action_policy.hash(&mut hasher);
     opts.confirm_actions.hash(&mut hasher);
@@ -789,6 +791,44 @@ fn stop_existing_daemon_for_restart(session: &str) {
     }
 }
 
+/// Start the selected daemon. Patchright executes commands through its own driver,
+/// rather than attaching the native CDP client to a Patchright-launched browser.
+fn daemon_command(exe_path: &std::path::Path, opts: &DaemonOptions) -> Result<Command, String> {
+    if opts.engine != Some("patchright") {
+        return Ok(Command::new(exe_path));
+    }
+    patchright_command(exe_path, "daemon.js")
+}
+
+/// Locate a bundled Patchright entry point for both daemon and browser installation.
+pub(crate) fn patchright_command(
+    exe_path: &std::path::Path,
+    entry: &str,
+) -> Result<Command, String> {
+    let explicit = env::var_os("AGENT_BROWSER_PATCHRIGHT_DAEMON")
+        .map(|path| PathBuf::from(path).with_file_name(entry));
+    let installed = exe_path
+        .parent()
+        .and_then(|bin| bin.parent())
+        .map(|root| root.join("packages/patchright-engine/dist").join(entry));
+    let source = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../packages/patchright-engine/dist")
+        .join(entry);
+    let script = if let Some(path) = explicit {
+        path
+    } else {
+        installed.filter(|path| path.is_file()).unwrap_or(source)
+    };
+    if !script.is_file() {
+        return Err(format!("Patchright daemon not found at {}. Run `bun run build:patchright` in the package directory.", script.display()));
+    }
+    let runtime = env::var_os("AGENT_BROWSER_PATCHRIGHT_RUNTIME").unwrap_or_else(|| "bun".into());
+    let mut cmd = Command::new(runtime);
+    cmd.arg(script)
+        .env("AGENT_BROWSER_CLI_VERSION", env!("CARGO_PKG_VERSION"));
+    Ok(cmd)
+}
+
 pub fn ensure_daemon(session: &str, opts: &DaemonOptions) -> Result<DaemonResult, String> {
     let mut restarted = false;
 
@@ -874,7 +914,7 @@ pub fn ensure_daemon(session: &str, opts: &DaemonOptions) -> Result<DaemonResult
     {
         use std::os::unix::process::CommandExt;
 
-        let mut cmd = Command::new(&exe_path);
+        let mut cmd = daemon_command(&exe_path, opts)?;
         cmd.env("AGENT_BROWSER_DAEMON", "1");
         apply_daemon_env(&mut cmd, session, opts);
 
@@ -898,7 +938,7 @@ pub fn ensure_daemon(session: &str, opts: &DaemonOptions) -> Result<DaemonResult
     {
         use std::os::windows::process::CommandExt;
 
-        let mut cmd = Command::new(&exe_path);
+        let mut cmd = daemon_command(&exe_path, opts)?;
         cmd.env("AGENT_BROWSER_DAEMON", "1");
         apply_daemon_env(&mut cmd, session, opts);
 

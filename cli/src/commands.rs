@@ -959,6 +959,13 @@ fn parse_command_inner(args: &[String], flags: &Flags) -> Result<Value, ParseErr
 
         // === Eval ===
         "eval" => {
+            // Patchright can evaluate DOM scripts outside the page's JavaScript world.
+            let isolated = rest.first() == Some(&"--isolated");
+            let rest = if isolated {
+                &rest[1..]
+            } else {
+                rest.as_slice()
+            };
             // Check for flags: -b/--base64 or --stdin
             let (is_base64, is_stdin, script_parts): (bool, bool, &[&str]) =
                 if rest.first() == Some(&"-b") || rest.first() == Some(&"--base64") {
@@ -966,7 +973,7 @@ fn parse_command_inner(args: &[String], flags: &Flags) -> Result<Value, ParseErr
                 } else if rest.first() == Some(&"--stdin") {
                     (false, true, &rest[1..])
                 } else {
-                    (false, false, rest.as_slice())
+                    (false, false, rest)
                 };
 
             let script = if is_stdin {
@@ -996,7 +1003,11 @@ fn parse_command_inner(args: &[String], flags: &Flags) -> Result<Value, ParseErr
                     raw_script
                 }
             };
-            Ok(json!({ "id": id, "action": "evaluate", "script": script }))
+            let mut command = json!({ "id": id, "action": "evaluate", "script": script });
+            if isolated {
+                command["isolated"] = json!(true);
+            }
+            Ok(command)
         }
 
         // === Close ===

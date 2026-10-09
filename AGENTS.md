@@ -4,7 +4,7 @@ Instructions for AI coding agents working with this codebase.
 
 ## Package Manager
 
-This project uses **pnpm**. Always use `pnpm` instead of `npm` or `yarn` for installing dependencies, running scripts, etc. (e.g., `pnpm install`, `pnpm run build`).
+This personal fork uses **Bun** for JavaScript dependencies and scripts. Use `bun install` and `bun run`. Prefer `mbx` for Rust builds. The upstream pnpm lockfile remains as a source reference; `bun.lock` controls this fork's installation.
 
 ## Code Style
 
@@ -95,7 +95,7 @@ Match the existing style in that file.
 
 ## Architecture
 
-This is a Rust codebase. The browser automation daemon lives in `cli/src/native/` (daemon, actions, browser, CDP client, snapshot, state). The `--engine` flag selects Chrome vs Lightpanda. The `install` command downloads Chrome from Chrome for Testing directly.
+The Rust CLI and native browser daemon live in `cli/src/`. The `--engine` flag selects Chrome, Lightpanda, or Patchright. Patchright executes browser commands in `packages/patchright-engine/` through its patched driver. Do not attach the native CDP manager to a Patchright browser: this would restore the Runtime.enable leak. `install` downloads the browser for the selected engine.
 
 ## Testing
 

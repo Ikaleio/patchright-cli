@@ -6,7 +6,17 @@ allowed-tools: Bash(agent-browser:*), Bash(npx agent-browser:*)
 
 # agent-browser core
 
-Fast browser automation CLI for AI agents. Chrome/Chromium via CDP, no Playwright or Puppeteer dependency. Accessibility-tree snapshots with compact `@eN` refs let agents interact with pages in ~200-400 tokens instead of parsing raw HTML.
+Fast browser automation CLI for AI agents. Native engines control Chrome/Chromium through CDP. This fork also supports a Patchright engine. Accessibility-tree snapshots with compact `@eN` refs let agents interact with pages in ~200-400 tokens instead of parsing raw HTML.
+
+For the Patchright engine, use `patchright-cli --session <task-name> open <url>`, then keep that session for subsequent commands. This entry point defaults to headed mode, an isolated `patchright` namespace, and a persistent profile. Use the normal snapshot, ref, click, fill, and screenshot workflow. Read [Patchright setup and limits](references/patchright.md) before using this engine. Patchright does not announce WebMCP tools.
+
+Use `eval --isolated <js>` for DOM queries on protected pages. Ordinary `eval` can access page globals but also calls functions the page may have hooked. Patchright navigation JSON provides the HTTP status and selected CDN response headers.
+
+Local Patchright sessions block non-proxied WebRTC UDP traffic by default. Close and reopen an existing session to apply this policy. Direct WebRTC voice, video, and peer connections can stop working.
+
+Local Patchright launches enable GPU selection in headed and headless mode. Hardware acceleration depends on the available GPU and drivers. Close and reopen existing sessions to apply this launch default. Attached browsers keep their existing GPU settings.
+
+Patchright waits for automatic Cloudflare challenge navigation before returning. If navigation JSON contains `challenge.cleared: false`, inspect the page before continuing.
 
 Most normal web tasks (navigate, read, click, fill, extract, screenshot) are covered here. Load a specialized skill when the task falls outside browser web pages — see [When to load another skill](#when-to-load-another-skill).
 

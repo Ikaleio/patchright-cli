@@ -1,5 +1,7 @@
 # Command Reference
 
+This fork supports `--engine patchright` and the `patchright-cli` entry point. See [Patchright setup and limits](patchright.md). Keep a consistent engine and namespace for each session.
+
 Complete reference for all agent-browser commands. For quick start and common patterns, see SKILL.md.
 
 ## Navigation
@@ -310,6 +312,7 @@ agent-browser dialog status         # Check if a dialog is currently open
 agent-browser eval "document.title"          # Simple expressions only
 agent-browser eval -b "<base64>"             # Any JavaScript (base64 encoded)
 agent-browser eval --stdin                   # Read script from stdin
+agent-browser --engine patchright eval --isolated "document.title" # Isolated DOM script
 ```
 
 Use `-b`/`--base64` or `--stdin` for reliable execution. Shell escaping with nested quotes and special characters is error-prone.

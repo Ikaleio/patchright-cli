@@ -1403,6 +1403,24 @@ fn main() {
 
     // Handle install separately
     if clean.first().map(|s| s.as_str()) == Some("install") {
+        if flags.engine.as_deref() == Some("patchright") {
+            let result = env::current_exe()
+                .map_err(|error| error.to_string())
+                .and_then(|exe| connection::patchright_command(&exe, "install.js"))
+                .and_then(|mut command| {
+                    command
+                        .args(&clean[1..])
+                        .status()
+                        .map_err(|error| error.to_string())
+                });
+            match result {
+                Ok(status) => std::process::exit(status.code().unwrap_or(1)),
+                Err(error) => {
+                    eprintln!("Patchright installation failed: {}", error);
+                    std::process::exit(1);
+                }
+            }
+        }
         let with_deps = args.iter().any(|a| a == "--with-deps" || a == "-d");
         run_install(with_deps);
         return;

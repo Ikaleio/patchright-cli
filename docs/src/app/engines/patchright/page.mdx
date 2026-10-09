@@ -1,0 +1,49 @@
+# Patchright
+
+This fork adds a Patchright driver to the agent-browser Rust CLI. Navigation, snapshots, locators, and evaluation run through Patchright. The native CDP browser manager does not attach to the Patchright session.
+
+## Setup
+
+```bash
+bun install --frozen-lockfile
+bun run build:native
+./bin/patchright-cli.js install
+./bin/patchright-cli.js --session research open https://example.com
+./bin/patchright-cli.js --session research snapshot -i
+```
+
+The convenience entry point defaults to headed mode and the `patchright` namespace. Each local session uses a persistent profile. Google Chrome is preferred when installed in a standard location, including ~/Applications on macOS. Otherwise the engine uses Patchright's matching Chromium build.
+
+The standard CLI can select the same engine with `--engine patchright` or `AGENT_BROWSER_ENGINE=patchright`. Keep the engine and namespace consistent across calls. Switching between native and Patchright engines restarts the session's daemon.
+
+## Options
+
+<table>
+  <thead><tr><th>Option</th><th>Behavior</th></tr></thead>
+  <tbody>
+    <tr><td><code>--headed false</code></td><td>Run without a visible window.</td></tr>
+    <tr><td><code>--profile &lt;directory&gt;</code></td><td>Use a supplied profile directory.</td></tr>
+    <tr><td><code>--state &lt;file&gt;</code></td><td>Load state into an ephemeral context.</td></tr>
+    <tr><td><code>--executable-path &lt;path&gt;</code></td><td>Use a specific Chromium browser.</td></tr>
+  </tbody>
+</table>
+
+Default profiles live under `~/.agent-browser/namespaces/<namespace>/patchright-profiles/<session>`. Closing a browser preserves cookies and local storage. Headed and attached sessions stay open by default. Headless local sessions close after one hour of inactivity. `--idle-timeout` overrides the default.
+
+Local sessions block non-proxied WebRTC UDP traffic by default to prevent STUN from exposing another network exit. Direct WebRTC voice, video, and peer connections can stop working. Close and reopen existing sessions to apply the policy. Attached browsers keep their existing policy.
+
+Local launches pass `--enable-gpu` in headed and headless mode. Chrome selects the rendering backend from the available hardware and drivers. Software rendering can still be used when hardware acceleration is unavailable. Close and reopen existing sessions to apply the launch default. Attached browsers keep their existing GPU settings.
+
+## Feature limits
+
+The daemon adapts browser commands from agent-browser v0.19.0. It supports navigation, snapshot refs, forms, tabs, frames, screenshots, PDF, cookies, storage, network routes, downloads, saved state, tracing, and recording. Explicit evaluation reads page globals. Use `eval --isolated <js>` for DOM queries that should avoid page function hooks. Place `--isolated` before other evaluation options. Internal DOM operations use isolated contexts.
+
+Console capture is disabled by Patchright. WebMCP, React inspection, accessibility audits, dashboard streaming, pinned tabs, plugins, CA bundles, the WebGPU preset, and the native restore workflow are unsupported. Unsupported commands or launch options return an error. Use the Chrome engine for these features.
+
+MCP tools accept an `engine` argument and forward it through the CLI parser. Set `AGENT_BROWSER_ENGINE=patchright` for consistent MCP sessions. Direct native calls use Bun by default; `AGENT_BROWSER_PATCHRIGHT_RUNTIME` can select another runtime. `AGENT_BROWSER_PATCHRIGHT_DAEMON` can select a different compiled daemon.
+
+Patchright reduces automation signals. Protected sites can still present challenges or reject a visit. Inspect the resulting page before acting on it.
+
+Navigation JSON includes `status` and selected CDN `responseHeaders` when available. These headers exclude cookies. The MCP evaluation tool accepts `isolated: true` for the same isolated world behavior.
+
+Patchright waits up to 20 seconds within the navigation timeout when Cloudflare returns a challenge response. Navigation JSON reports `challenge.detected` and `challenge.cleared`. Inspect challenges that remain visible before continuing.

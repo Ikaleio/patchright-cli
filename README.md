@@ -1,4 +1,41 @@
-# agent-browser
+# patchright-cli
+
+This fork adds a Patchright engine to agent-browser 0.38.1. `patchright-cli` starts a headed browser with a separate persistent profile for each session. Page operations run through Patchright, including snapshots, locators, and evaluation. See [the Patchright guide](skill-data/core/references/patchright.md) for setup, commands, and feature limits.
+
+Patchright prefers installed Google Chrome, including `~/Applications/Google Chrome.app` on macOS. Use `eval --isolated <js>` for DOM queries that must avoid page JavaScript hooks. Ordinary `eval` can read page globals. Navigation JSON includes the HTTP `status` and selected CDN `responseHeaders` when available.
+
+Local Patchright launches pass `--enable-gpu` in headed and headless mode. Chrome selects the rendering backend from the available hardware and drivers. Software rendering can still be used when hardware acceleration is unavailable. Close and reopen existing sessions to apply the launch option. Attached browsers keep their existing GPU settings.
+
+Local Patchright sessions block non-proxied WebRTC UDP traffic by default. This prevents STUN from exposing a separate network exit. Sites that require direct WebRTC connections can lose voice, video, or peer connectivity. Close an existing session and reopen it to apply the launch policy.
+
+When Cloudflare returns `cf-mitigated: challenge`, Patchright waits up to 20 seconds within the navigation timeout for automatic verification. Navigation JSON reports whether the challenge cleared. A challenge that remains visible needs user interaction or a different network configuration.
+
+See [the browser check report](BROWSER_CHECKS.md) for public fingerprint probes, Cloudflare challenge results, CDN delivery checks, and remaining network flags.
+
+## Install this fork from source
+
+Requires Bun 1.4.2 or later, Node.js 24 or later, and the Rust toolchain.
+
+```bash
+git clone https://github.com/Ikaleio/patchright-cli.git
+cd patchright-cli
+bun install --frozen-lockfile
+bun run build:patchright
+cargo build --release --manifest-path cli/Cargo.toml
+bun scripts/copy-native.js
+./bin/patchright-cli.js install
+./bin/patchright-cli.js --session research open https://example.com
+./bin/patchright-cli.js --session research snapshot -i
+./bin/patchright-cli.js --session research close
+```
+
+With `mbx` installed, `bun run build:native` builds the daemon and native CLI in one command. On Linux, use `./bin/patchright-cli.js install --with-deps` to install browser libraries. Headed mode requires a display server. Use `--headed false` to run without a visible window.
+
+This project derives from [vercel-labs/agent-browser](https://github.com/vercel-labs/agent-browser) and retains its Apache-2.0 license. The browser daemon adapts upstream v0.19.0 code. Its provenance is documented in [packages/patchright-engine](packages/patchright-engine/README.md).
+
+## Upstream command reference
+
+The remaining sections describe upstream agent-browser. The npm, Homebrew, and Cargo packages below install the upstream project. Build this repository from source for the Patchright engine. See [the Patchright guide](skill-data/core/references/patchright.md) for commands that this engine supports.
 
 Browser automation CLI for AI agents. Fast native Rust CLI.
 
@@ -1082,7 +1119,7 @@ This is useful for multimodal AI models that can reason about visual layout, unl
 | `--action-policy <path>` | Path to action policy JSON file (or `AGENT_BROWSER_ACTION_POLICY` env) |
 | `--confirm-actions <list>` | Action categories requiring confirmation (or `AGENT_BROWSER_CONFIRM_ACTIONS` env) |
 | `--confirm-interactive` | Interactive confirmation prompts; auto-denies if stdin is not a TTY (or `AGENT_BROWSER_CONFIRM_INTERACTIVE` env) |
-| `--engine <name>` | Browser engine: `chrome` (default), `lightpanda` (or `AGENT_BROWSER_ENGINE` env) |
+| `--engine <name>` | Browser engine: `chrome` (default), `lightpanda`, `patchright` (or `AGENT_BROWSER_ENGINE` env) |
 | `--input-mode <mode>` | Session pointer movement: `instant` (default), `smooth`, or `human` |
 | `--idle-timeout <time>` | Shut down the daemon after inactivity (`10s`, `3m`, `1h`, or raw ms). Defaults to `1h`; use `0` to disable (or `AGENT_BROWSER_IDLE_TIMEOUT_MS` env) |
 | `--no-auto-dialog` | Disable automatic dismissal of `alert`/`beforeunload` dialogs (or `AGENT_BROWSER_NO_AUTO_DIALOG` env) |
@@ -1703,7 +1740,7 @@ agent-browser uses a client-daemon architecture:
 
 The daemon starts automatically on first command and persists between commands for fast subsequent operations. After **1 hour** with no commands or dashboard input it saves configured restore state, closes the browser, and exits, so an integration that dies without calling `close` cannot leak the daemon and its browser indefinitely; the next command starts a fresh daemon and configured state restore works as usual. A session without `--restore` or another restore key does not save browser state, so its transient state and open tabs are discarded at shutdown. Set `--idle-timeout` to a duration such as `30s`, `5m`, or `1h`, or set `AGENT_BROWSER_IDLE_TIMEOUT_MS` to a value in milliseconds. Use `0` to disable idle shutdown entirely. The default never closes a headed browser, including Safari and iOS WebDriver sessions, or a user-attached browser because those may be in direct human use. Provider-owned cloud browsers remain eligible for cleanup. An explicitly set timeout applies to every browser.
 
-**Browser Engine:** Uses Chrome (from Chrome for Testing) by default. The `--engine` flag selects between `chrome` and `lightpanda`. Supported browsers: Chromium/Chrome (via CDP) and Safari (via WebDriver for iOS).
+**Browser Engine:** Uses Chrome (from Chrome for Testing) by default. The `--engine` flag selects `chrome`, `lightpanda`, or `patchright`. Patchright runs Chromium/Chrome page operations through its patched driver. The native engines use CDP. Safari uses WebDriver for iOS.
 
 ## Platforms
 

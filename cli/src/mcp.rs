@@ -770,7 +770,7 @@ fn tools() -> Vec<Value> {
         tool(
             TOOL_OPEN,
             "Open page",
-            "Launch the browser and optionally navigate to a URL. On Windows, owned headless Chrome uses a private desktop and its process tree closes with the daemon, including forced termination. Headed browsers use the interactive desktop. Successful navigation responses include WebMCP availability metadata when the page exposes allowed tools.",
+            "Launch the browser and optionally navigate to a URL. On Windows, owned headless Chrome uses a private desktop and its process tree closes with the daemon, including forced termination. Headed browsers use the interactive desktop. Native navigation responses include WebMCP availability metadata when the page exposes allowed tools. Patchright waits up to 20 seconds within the navigation timeout for automatic Cloudflare challenges and returns challenge status, HTTP status, and selected CDN response headers.",
             json!({
                 "url": { "type": "string", "description": "URL to open. Omit to launch about:blank." },
                 "headed": { "type": "boolean", "description": "Show the browser window. Explicit true/false overrides AGENT_BROWSER_HEADED and config; omit to use those defaults." },
@@ -955,7 +955,8 @@ fn tools() -> Vec<Value> {
             "Evaluate JavaScript",
             "Run JavaScript in the page using stdin to avoid shell escaping.",
             json!({
-                "script": { "type": "string", "description": "JavaScript expression or script to evaluate." }
+                "script": { "type": "string", "description": "JavaScript expression or script to evaluate." },
+                "isolated": { "type": "boolean", "default": false, "description": "Patchright only: evaluate DOM code in an isolated world without page globals or page function hooks." }
             }),
             &["script"],
         ),
@@ -1955,6 +1956,14 @@ fn tool(name: &str, title: &str, description: &str, properties: Value, required:
         Value::Object(map) => map,
         _ => serde_json::Map::new(),
     };
+    props.insert(
+        "engine".to_string(),
+        json!({
+            "type": "string",
+            "enum": ["chrome", "lightpanda", "patchright"],
+            "description": "Browser engine. Patchright runs page commands through its patched Chromium driver. Local sessions enable GPU selection in headed and headless mode and block non-proxied WebRTC UDP by default. Hardware acceleration depends on the GPU and drivers. Use the same engine for each call in a session."
+        }),
+    );
     props.insert(
         "session".to_string(),
         json!({
@@ -3644,11 +3653,12 @@ fn call_chat(arguments: &Value) -> Result<Value, ProtocolError> {
 
 fn call_eval(arguments: &Value) -> Result<Value, ProtocolError> {
     let script = required_string(arguments, "script")?;
-    call_cli_tool(
-        arguments,
-        vec!["eval".to_string(), "--stdin".to_string()],
-        Some(script),
-    )
+    let mut args = vec!["eval".to_string()];
+    if optional_bool(arguments, "isolated")?.unwrap_or(false) {
+        args.push("--isolated".to_string());
+    }
+    args.push("--stdin".to_string());
+    call_cli_tool(arguments, args, Some(script))
 }
 
 fn call_close(arguments: &Value) -> Result<Value, ProtocolError> {
@@ -3823,6 +3833,16 @@ fn append_common_global_args(
         args.push(namespace);
     }
     append_session_args(args, session);
+    if let Some(engine) = optional_string(arguments, "engine")? {
+        if !["chrome", "lightpanda", "patchright"].contains(&engine.as_str()) {
+            return Err(ProtocolError::invalid_params(format!(
+                "Unknown browser engine: {}",
+                engine
+            )));
+        }
+        args.push("--engine".to_string());
+        args.push(engine);
+    }
 
     if let Some(idle_timeout) = optional_string(arguments, "idleTimeout")? {
         args.push("--idle-timeout".to_string());

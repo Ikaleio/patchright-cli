@@ -15,6 +15,8 @@ import { fileURLToPath } from 'url';
 import { platform, arch } from 'os';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+process.env.AGENT_BROWSER_PATCHRIGHT_RUNTIME ??= process.execPath;
+process.env.AGENT_BROWSER_PATCHRIGHT_DAEMON ??= join(__dirname, '../packages/patchright-engine/dist/daemon.js');
 
 // Detect if the system uses musl libc (e.g. Alpine Linux)
 function isMusl() {

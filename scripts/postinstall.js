@@ -12,7 +12,7 @@
 import { existsSync, mkdirSync, chmodSync, createWriteStream, unlinkSync, writeFileSync, symlinkSync, lstatSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
-import { platform, arch } from 'os';
+import { platform, arch, homedir } from 'os';
 import { get } from 'https';
 import { execSync } from 'child_process';
 
@@ -168,6 +168,7 @@ function findSystemChrome() {
   if (os === 'darwin') {
     const candidates = [
       '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+      join(homedir(), 'Applications/Google Chrome.app/Contents/MacOS/Google Chrome'),
       '/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary',
       '/Applications/Chromium.app/Contents/MacOS/Chromium',
     ];
@@ -199,7 +200,7 @@ function showInstallReminder() {
   if (systemChrome) {
     console.log('');
     console.log(`  ✓ System Chrome found: ${systemChrome}`);
-    console.log('    agent-browser will use it automatically.');
+    console.log('    The Patchright engine will use it automatically.');
     console.log('');
     return;
   }
