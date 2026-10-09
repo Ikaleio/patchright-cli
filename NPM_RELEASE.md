@@ -10,6 +10,8 @@ The package includes seven native binaries: Linux x64 and ARM64 for glibc and mu
 
 The publish job checks the npm file list, installs the actual tarball in an empty directory, and runs `ptrcli --version` before uploading to npm. `scripts/check-npm-package.js` rejects missing binaries, missing daemon entry points, and private local artifacts.
 
+npm scans uploaded packages before they become available for installation. The release checks the registry every 30 seconds for up to 20 minutes after publishing. If the version is still unavailable, the job fails so the maintainer can check npm's scanning status. See the [npm publish-time scanning announcement](https://github.blog/changelog/2026-07-28-npm-publish-time-malware-scanning-and-dual-use-metadata/).
+
 ## First publication
 
 A package must exist before npm can configure its Trusted Publisher. The maintainer account is `ikaleio`.

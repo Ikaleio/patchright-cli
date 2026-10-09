@@ -158,7 +158,7 @@ jobs:
     name: Package and publish ptrcli
     needs: build-binaries
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 30
     permissions:
       contents: read
       id-token: write
@@ -228,4 +228,14 @@ jobs:
         if: inputs.dry-run != true
         env:
           VERSION: ${{ steps.version.outputs.version }}
-        run: npm view "ptrcli@$VERSION" version
+        run: |
+          for attempt in $(seq 1 40); do
+            if [ "$(npm view "ptrcli@$VERSION" version --prefer-online 2>/dev/null)" = "$VERSION" ]; then
+              echo "ptrcli@$VERSION is available on npm."
+              exit 0
+            fi
+            echo "Waiting for npm to make ptrcli@$VERSION available ($attempt/40)."
+            sleep 30
+          done
+          echo "ptrcli@$VERSION is still unavailable after 20 minutes; check npm scanning status."
+          exit 1
