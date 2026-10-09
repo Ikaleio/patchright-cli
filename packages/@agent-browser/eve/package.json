@@ -30,7 +30,7 @@
   },
   "scripts": {
     "build": "eve extension build && tsc -p tsconfig.sandbox.json",
-    "prepare": "bun --cwd ../sandbox run build && bun run build",
+    "prepare": "bun run --cwd ../sandbox build && bun run build",
     "test": "pnpm -C ../sandbox run build && pnpm run build && node --test test/*.test.mjs",
     "typecheck": "tsc"
   },
