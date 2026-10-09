@@ -40,7 +40,7 @@ In the `docs/src/app/` MDX files, always use HTML `<table>` syntax for tables (n
 
 ## Releasing
 
-This fork publishes the `@ikaleio/prcli` npm package after each successful `main` CI run. `.github/workflows/release.yml` builds seven platform binaries, compiles the Patchright daemon, checks the packed installation, and publishes with npm Trusted Publisher authentication. Pull-request builds do not publish.
+This fork publishes the `ptrcli` npm package after each successful `main` CI run. `.github/workflows/release.yml` builds seven platform binaries, compiles the Patchright daemon, checks the packed installation, and publishes with npm Trusted Publisher authentication. Pull-request builds do not publish.
 
 `scripts/prepare-npm-release.js` adds the release workflow run number to the source patch version. It updates the npm and Rust versions only inside the release checkout. Re-running a published version skips the upload. Keep the source version stable, and update it deliberately when changing the major or minor release line. See [NPM_RELEASE.md](NPM_RELEASE.md) for initial authentication and manual builds.
 
@@ -55,7 +55,7 @@ To prepare a release:
 5. Add a matching entry to `docs/src/app/changelog/page.mdx` at the top (below the `# Changelog` heading)
 6. Open a PR and merge to `main`
 
-The npm workflow publishes only `@ikaleio/prcli`. The upstream sandbox and eve packages keep their original names and are not published from this repository.
+The npm workflow publishes only `ptrcli`. The upstream sandbox and eve packages keep their original names and are not published from this repository.
 
 ### Writing the changelog
 

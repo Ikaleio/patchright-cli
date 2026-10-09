@@ -4,16 +4,16 @@ This fork keeps the agent-browser 0.38.1 Rust CLI and adds a Patchright 1.63.0 d
 
 ## Build and install
 
-The fork's npm package is `@ikaleio/prcli`. It includes native binaries for macOS, Linux, and Windows x64, plus the compiled Patchright daemon. Node.js 24 or later is required. `patchright-cli` is a command alias.
+The fork's npm package is `ptrcli`. It includes native binaries for macOS, Linux, and Windows x64, plus the compiled Patchright daemon. Node.js 24 or later is required. `patchright-cli` is a command alias.
 
 ```bash
-npm install -g @ikaleio/prcli
-prcli install
-prcli --session research open https://example.com
-prcli upgrade
+npm install -g ptrcli
+ptrcli install
+ptrcli --session research open https://example.com
+ptrcli upgrade
 ```
 
-`prcli upgrade` uses the detected npm, pnpm, Yarn Classic, or Bun installation to update `@ikaleio/prcli`.
+`ptrcli upgrade` uses the detected npm, pnpm, Yarn Classic, or Bun installation to update `ptrcli`.
 
 Requires Bun and the Rust toolchain. Node.js 24 or later can also run the compiled daemon.
 

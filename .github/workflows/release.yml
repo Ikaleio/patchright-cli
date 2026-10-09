@@ -114,9 +114,9 @@ jobs:
       - name: Install cross-compilation tools
         if: matrix.zigbuild
         run: |
-          uv venv /tmp/prcli-zig
-          uv pip install --python /tmp/prcli-zig/bin/python ziglang==0.15.2
-          echo 'CARGO_ZIGBUILD_PYTHON_PATH=/tmp/prcli-zig/bin/python' >> "$GITHUB_ENV"
+          uv venv /tmp/ptrcli-zig
+          uv pip install --python /tmp/ptrcli-zig/bin/python ziglang==0.15.2
+          echo 'CARGO_ZIGBUILD_PYTHON_PATH=/tmp/ptrcli-zig/bin/python' >> "$GITHUB_ENV"
           cargo install cargo-zigbuild --version 0.23.2 --locked
 
       - name: Build native CLI
@@ -155,7 +155,7 @@ jobs:
           retention-days: 7
 
   publish:
-    name: Package and publish @ikaleio/prcli
+    name: Package and publish ptrcli
     needs: build-binaries
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -201,15 +201,15 @@ jobs:
           rm -f bin/.install-method
           bun scripts/check-npm-package.js
           node bin/patchright-cli.js --version
-          npm pack --json > /tmp/prcli-pack.json
-          mkdir -p /tmp/prcli-install
-          npm install --prefix /tmp/prcli-install "$(node -p "require('/tmp/prcli-pack.json')[0].filename")"
-          /tmp/prcli-install/node_modules/.bin/prcli --version
+          npm pack --json > /tmp/ptrcli-pack.json
+          mkdir -p /tmp/ptrcli-install
+          npm install --prefix /tmp/ptrcli-install "$(node -p "require('/tmp/ptrcli-pack.json')[0].filename")"
+          /tmp/ptrcli-install/node_modules/.bin/ptrcli --version
 
       - uses: actions/upload-artifact@v4
         with:
           name: npm-package
-          path: ikaleio-prcli-*.tgz
+          path: ptrcli-*.tgz
           if-no-files-found: error
           retention-days: 7
 
@@ -218,8 +218,8 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          if npm view "@ikaleio/prcli@$VERSION" version >/dev/null 2>&1; then
-            echo "@ikaleio/prcli@$VERSION is already published; skipping this retry."
+          if npm view "ptrcli@$VERSION" version >/dev/null 2>&1; then
+            echo "ptrcli@$VERSION is already published; skipping this retry."
           else
             npm publish --access public --tag latest
           fi
@@ -228,4 +228,4 @@ jobs:
         if: inputs.dry-run != true
         env:
           VERSION: ${{ steps.version.outputs.version }}
-        run: npm view "@ikaleio/prcli@$VERSION" version
+        run: npm view "ptrcli@$VERSION" version

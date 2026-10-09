@@ -1,5 +1,5 @@
 {
-  "name": "@ikaleio/prcli",
+  "name": "ptrcli",
   "version": "0.38.1",
   "description": "agent-browser fork with a Patchright browser driver",
   "type": "module",
@@ -21,7 +21,7 @@
     "packages/patchright-engine/README.md"
   ],
   "bin": {
-    "prcli": "./bin/patchright-cli.js",
+    "ptrcli": "./bin/patchright-cli.js",
     "patchright-cli": "./bin/patchright-cli.js"
   },
   "scripts": {

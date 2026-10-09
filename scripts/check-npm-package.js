@@ -24,7 +24,7 @@ for (const path of required) {
     throw new Error(`Native binary is too small: ${path}`);
   }
 }
-if (pkg.name !== '@ikaleio/prcli') throw new Error(`Unexpected npm package name: ${pkg.name}`);
+if (pkg.name !== 'ptrcli') throw new Error(`Unexpected npm package name: ${pkg.name}`);
 const forbidden = pkg.files.find(({ path }) =>
   /^(artifacts|node_modules|cli\/target)\//.test(path) ||
   /(^|\/)\.env($|\.)/.test(path) || path === 'bin/.install-method'

@@ -3175,16 +3175,16 @@ Examples:
         // === Upgrade ===
         "upgrade" => {
             r##"
-prcli upgrade - Upgrade to the latest npm version
+ptrcli upgrade - Upgrade to the latest npm version
 
-Usage: prcli upgrade
+Usage: ptrcli upgrade
 
 Detects the current package manager (npm, pnpm, Yarn Classic, or Bun) and runs
 the appropriate update command. Displays the version change on success, or
 informs you if you are already on the latest version.
 
 Examples:
-  prcli upgrade
+  ptrcli upgrade
 "##
         }
 
@@ -4178,10 +4178,10 @@ Cloudflare automatic challenges wait up to 20s within the navigation timeout.
   AI_GATEWAY_MODEL               Default AI model (default: anthropic/claude-sonnet-4.6, or --model flag)
 
 Install:
-  npm install -g @ikaleio/prcli            # npm package with bundled native binaries
-  bun install -g @ikaleio/prcli            # Bun
-  prcli install                          # Download Patchright Chromium if Chrome is absent
-  prcli upgrade                          # Upgrade the @ikaleio/prcli npm package
+  npm install -g ptrcli            # npm package with bundled native binaries
+  bun install -g ptrcli            # Bun
+  ptrcli install                          # Download Patchright Chromium if Chrome is absent
+  ptrcli upgrade                          # Upgrade the ptrcli npm package
 
 Examples:
   agent-browser open example.com

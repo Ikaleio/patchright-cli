@@ -1883,7 +1883,7 @@ fn parity_tools() -> Vec<Value> {
         tool(
             TOOL_UPGRADE,
             "Upgrade",
-            "Upgrade the @ikaleio/prcli npm package using the detected package manager.",
+            "Upgrade the ptrcli npm package using the detected package manager.",
             json!({}),
             &[],
         ),

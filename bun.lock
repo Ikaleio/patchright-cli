@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "@ikaleio/prcli",
+      "name": "ptrcli",
       "dependencies": {
         "patchright": "1.63.0",
         "ws": "8.19.0",

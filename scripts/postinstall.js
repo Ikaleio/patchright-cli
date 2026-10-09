@@ -34,4 +34,4 @@ if (existsSync(binaryPath)) {
 
 const method = process.env.npm_config_user_agent?.match(/^(npm|pnpm|yarn|bun)\//)?.[1];
 if (method) writeFileSync(join(binDir, '.install-method'), method);
-console.log('Run prcli install if Google Chrome is not installed.');
+console.log('Run ptrcli install if Google Chrome is not installed.');

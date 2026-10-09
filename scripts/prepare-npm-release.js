@@ -10,8 +10,8 @@ const pkgPath = join(root, 'package.json');
 const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
 const runNumber = process.env.GITHUB_RUN_NUMBER;
 const base = pkg.version.match(/^(\d+)\.(\d+)\.(\d+)$/);
-if (pkg.name !== '@ikaleio/prcli' || !base || !/^[1-9]\d*$/.test(runNumber || '')) {
-  throw new Error('Expected @ikaleio/prcli, a stable source version, and a positive GITHUB_RUN_NUMBER.');
+if (pkg.name !== 'ptrcli' || !base || !/^[1-9]\d*$/.test(runNumber || '')) {
+  throw new Error('Expected ptrcli, a stable source version, and a positive GITHUB_RUN_NUMBER.');
 }
 const patch = Number(base[3]) + Number(runNumber);
 if (!Number.isSafeInteger(patch)) throw new Error('Release patch version is too large.');

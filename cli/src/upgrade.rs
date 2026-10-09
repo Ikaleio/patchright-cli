@@ -3,7 +3,7 @@ use std::path::Path;
 use std::process::{exit, Command, Stdio};
 
 const CURRENT_VERSION: &str = env!("CARGO_PKG_VERSION");
-const NPM_REGISTRY_URL: &str = "https://registry.npmjs.org/@ikaleio%2fprcli/latest";
+const NPM_REGISTRY_URL: &str = "https://registry.npmjs.org/ptrcli/latest";
 
 enum InstallMethod {
     Npm,
@@ -68,30 +68,26 @@ fn detect_install_method() -> InstallMethod {
             return InstallMethod::Bun;
         }
 
-        if path_str.contains("node_modules/@ikaleio/prcli/") {
+        if path_str.contains("node_modules/ptrcli/") {
             return InstallMethod::Npm;
         }
     }
 
     // Last resort: probe package managers via subprocess
 
-    if command_output_contains(
-        "pnpm",
-        &["list", "-g", "@ikaleio/prcli", "--depth=0"],
-        "@ikaleio/prcli",
-    ) {
+    if command_output_contains("pnpm", &["list", "-g", "ptrcli", "--depth=0"], "ptrcli") {
         return InstallMethod::Pnpm;
     }
 
-    if command_output_contains("yarn", &["global", "list", "--depth=0"], "@ikaleio/prcli") {
+    if command_output_contains("yarn", &["global", "list", "--depth=0"], "ptrcli") {
         return InstallMethod::Yarn;
     }
 
-    if command_output_contains("bun", &["pm", "ls", "-g"], "@ikaleio/prcli") {
+    if command_output_contains("bun", &["pm", "ls", "-g"], "ptrcli") {
         return InstallMethod::Bun;
     }
 
-    if command_succeeds("npm", &["list", "-g", "@ikaleio/prcli", "--depth=0"]) {
+    if command_succeeds("npm", &["list", "-g", "ptrcli", "--depth=0"]) {
         return InstallMethod::Npm;
     }
 
@@ -121,25 +117,25 @@ fn run_upgrade_command(method: &InstallMethod) -> bool {
     let (cmd, args, display): (&str, &[&str], &str) = match method {
         InstallMethod::Npm => (
             "npm",
-            &["install", "-g", "@ikaleio/prcli@latest"],
-            "npm install -g @ikaleio/prcli@latest",
+            &["install", "-g", "ptrcli@latest"],
+            "npm install -g ptrcli@latest",
         ),
         InstallMethod::Pnpm => (
             "pnpm",
-            &["add", "-g", "@ikaleio/prcli@latest"],
-            "pnpm add -g @ikaleio/prcli@latest",
+            &["add", "-g", "ptrcli@latest"],
+            "pnpm add -g ptrcli@latest",
         ),
         // NOTE: `yarn global` is Yarn Classic (v1) only; Yarn Berry (v2+) removed it.
         // Users on Yarn v2+ won't reach this path — detection falls through to Unknown.
         InstallMethod::Yarn => (
             "yarn",
-            &["global", "add", "@ikaleio/prcli@latest"],
-            "yarn global add @ikaleio/prcli@latest",
+            &["global", "add", "ptrcli@latest"],
+            "yarn global add ptrcli@latest",
         ),
         InstallMethod::Bun => (
             "bun",
-            &["install", "-g", "@ikaleio/prcli@latest"],
-            "bun install -g @ikaleio/prcli@latest",
+            &["install", "-g", "ptrcli@latest"],
+            "bun install -g ptrcli@latest",
         ),
         InstallMethod::Unknown => return false,
     };
@@ -181,7 +177,7 @@ pub fn run_upgrade() {
 
     if !latest.is_empty() && current == latest.as_str() {
         println!(
-            "{} prcli is already at the latest version (v{})",
+            "{} ptrcli is already at the latest version (v{})",
             color::success_indicator(),
             current
         );
@@ -204,10 +200,10 @@ pub fn run_upgrade() {
             color::error_indicator()
         );
         eprintln!("  To update manually, run one of:");
-        eprintln!("    npm install -g @ikaleio/prcli@latest       # npm");
-        eprintln!("    pnpm add -g @ikaleio/prcli@latest          # pnpm");
-        eprintln!("    yarn global add @ikaleio/prcli@latest     # Yarn Classic");
-        eprintln!("    bun install -g @ikaleio/prcli@latest      # Bun");
+        eprintln!("    npm install -g ptrcli@latest       # npm");
+        eprintln!("    pnpm add -g ptrcli@latest          # pnpm");
+        eprintln!("    yarn global add ptrcli@latest     # Yarn Classic");
+        eprintln!("    bun install -g ptrcli@latest      # Bun");
         exit(1);
     }
 
@@ -216,12 +212,12 @@ pub fn run_upgrade() {
     if !latest.is_empty() {
         println!(
             "{}",
-            color::cyan(&format!("Upgrading prcli... v{} → v{}", current, latest))
+            color::cyan(&format!("Upgrading ptrcli... v{} → v{}", current, latest))
         );
     } else {
         println!(
             "{}",
-            color::cyan(&format!("Upgrading prcli (v{})...", current))
+            color::cyan(&format!("Upgrading ptrcli (v{})...", current))
         );
     }
 
