@@ -4,6 +4,20 @@ This fork adds a Patchright driver to the agent-browser Rust CLI. Navigation, sn
 
 ## Setup
 
+Install the `prcli` npm package with Node.js 24 or later. It includes native binaries for macOS, Linux, and Windows x64, plus the compiled daemon. `patchright-cli` remains a command alias.
+
+```bash
+npm install -g prcli
+prcli install
+prcli --session research open https://example.com
+prcli --session research snapshot -i
+prcli upgrade
+```
+
+`prcli upgrade` updates this fork's npm package with the detected package manager.
+
+### Build from source
+
 ```bash
 bun install --frozen-lockfile
 bun run build:native

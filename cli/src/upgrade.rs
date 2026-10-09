@@ -3,15 +3,13 @@ use std::path::Path;
 use std::process::{exit, Command, Stdio};
 
 const CURRENT_VERSION: &str = env!("CARGO_PKG_VERSION");
-const NPM_REGISTRY_URL: &str = "https://registry.npmjs.org/agent-browser/latest";
+const NPM_REGISTRY_URL: &str = "https://registry.npmjs.org/prcli/latest";
 
 enum InstallMethod {
     Npm,
     Pnpm,
     Yarn,
     Bun,
-    Homebrew,
-    Cargo,
     Unknown,
 }
 
@@ -58,17 +56,6 @@ fn detect_install_method() -> InstallMethod {
         // Fallback: infer from executable path
         let path_str = real_path.to_string_lossy();
 
-        if path_str.contains("/.cargo/bin/") || path_str.contains("\\.cargo\\bin\\") {
-            return InstallMethod::Cargo;
-        }
-
-        if path_str.contains("/Cellar/agent-browser/")
-            || path_str.contains("/homebrew/")
-            || path_str.contains("/linuxbrew/")
-        {
-            return InstallMethod::Homebrew;
-        }
-
         if path_str.contains("/pnpm/") || path_str.contains("/pnpm-global/") {
             return InstallMethod::Pnpm;
         }
@@ -81,39 +68,26 @@ fn detect_install_method() -> InstallMethod {
             return InstallMethod::Bun;
         }
 
-        if path_str.contains("node_modules/agent-browser")
-            || path_str.contains("node_modules\\agent-browser")
-        {
+        if path_str.contains("node_modules/prcli") || path_str.contains("node_modules\\prcli") {
             return InstallMethod::Npm;
         }
     }
 
     // Last resort: probe package managers via subprocess
 
-    #[cfg(any(target_os = "macos", target_os = "linux"))]
-    {
-        if command_succeeds("brew", &["list", "agent-browser"]) {
-            return InstallMethod::Homebrew;
-        }
-    }
-
-    if command_output_contains(
-        "pnpm",
-        &["list", "-g", "agent-browser", "--depth=0"],
-        "agent-browser",
-    ) {
+    if command_output_contains("pnpm", &["list", "-g", "prcli", "--depth=0"], "prcli") {
         return InstallMethod::Pnpm;
     }
 
-    if command_output_contains("yarn", &["global", "list", "--depth=0"], "agent-browser") {
+    if command_output_contains("yarn", &["global", "list", "--depth=0"], "prcli") {
         return InstallMethod::Yarn;
     }
 
-    if command_output_contains("bun", &["pm", "ls", "-g"], "agent-browser") {
+    if command_output_contains("bun", &["pm", "ls", "-g"], "prcli") {
         return InstallMethod::Bun;
     }
 
-    if command_succeeds("npm", &["list", "-g", "agent-browser", "--depth=0"]) {
+    if command_succeeds("npm", &["list", "-g", "prcli", "--depth=0"]) {
         return InstallMethod::Npm;
     }
 
@@ -143,35 +117,25 @@ fn run_upgrade_command(method: &InstallMethod) -> bool {
     let (cmd, args, display): (&str, &[&str], &str) = match method {
         InstallMethod::Npm => (
             "npm",
-            &["install", "-g", "agent-browser@latest"],
-            "npm install -g agent-browser@latest",
+            &["install", "-g", "prcli@latest"],
+            "npm install -g prcli@latest",
         ),
         InstallMethod::Pnpm => (
             "pnpm",
-            &["add", "-g", "agent-browser@latest"],
-            "pnpm add -g agent-browser@latest",
+            &["add", "-g", "prcli@latest"],
+            "pnpm add -g prcli@latest",
         ),
         // NOTE: `yarn global` is Yarn Classic (v1) only; Yarn Berry (v2+) removed it.
         // Users on Yarn v2+ won't reach this path — detection falls through to Unknown.
         InstallMethod::Yarn => (
             "yarn",
-            &["global", "add", "agent-browser@latest"],
-            "yarn global add agent-browser@latest",
+            &["global", "add", "prcli@latest"],
+            "yarn global add prcli@latest",
         ),
         InstallMethod::Bun => (
             "bun",
-            &["install", "-g", "agent-browser@latest"],
-            "bun install -g agent-browser@latest",
-        ),
-        InstallMethod::Homebrew => (
-            "brew",
-            &["upgrade", "agent-browser"],
-            "brew upgrade agent-browser",
-        ),
-        InstallMethod::Cargo => (
-            "cargo",
-            &["install", "agent-browser", "--force"],
-            "cargo install agent-browser --force",
+            &["install", "-g", "prcli@latest"],
+            "bun install -g prcli@latest",
         ),
         InstallMethod::Unknown => return false,
     };
@@ -213,7 +177,7 @@ pub fn run_upgrade() {
 
     if !latest.is_empty() && current == latest.as_str() {
         println!(
-            "{} agent-browser is already at the latest version (v{})",
+            "{} prcli is already at the latest version (v{})",
             color::success_indicator(),
             current
         );
@@ -227,8 +191,6 @@ pub fn run_upgrade() {
         InstallMethod::Pnpm => "pnpm",
         InstallMethod::Yarn => "yarn",
         InstallMethod::Bun => "bun",
-        InstallMethod::Homebrew => "Homebrew",
-        InstallMethod::Cargo => "Cargo",
         InstallMethod::Unknown => "",
     };
 
@@ -238,12 +200,10 @@ pub fn run_upgrade() {
             color::error_indicator()
         );
         eprintln!("  To update manually, run one of:");
-        eprintln!("    npm install -g agent-browser@latest       # npm");
-        eprintln!("    pnpm add -g agent-browser@latest          # pnpm");
-        eprintln!("    yarn global add agent-browser@latest       # yarn");
-        eprintln!("    bun install -g agent-browser@latest        # bun");
-        eprintln!("    brew upgrade agent-browser                 # Homebrew");
-        eprintln!("    cargo install agent-browser --force        # Cargo");
+        eprintln!("    npm install -g prcli@latest       # npm");
+        eprintln!("    pnpm add -g prcli@latest          # pnpm");
+        eprintln!("    yarn global add prcli@latest     # Yarn Classic");
+        eprintln!("    bun install -g prcli@latest      # Bun");
         exit(1);
     }
 
@@ -252,15 +212,12 @@ pub fn run_upgrade() {
     if !latest.is_empty() {
         println!(
             "{}",
-            color::cyan(&format!(
-                "Upgrading agent-browser... v{} → v{}",
-                current, latest
-            ))
+            color::cyan(&format!("Upgrading prcli... v{} → v{}", current, latest))
         );
     } else {
         println!(
             "{}",
-            color::cyan(&format!("Upgrading agent-browser (v{})...", current))
+            color::cyan(&format!("Upgrading prcli (v{})...", current))
         );
     }
 

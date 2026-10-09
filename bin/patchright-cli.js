@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 // The convenience entry point uses its own daemon namespace and headed defaults.
 process.env.AGENT_BROWSER_ENGINE ??= 'patchright';

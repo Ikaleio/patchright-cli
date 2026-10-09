@@ -1883,7 +1883,7 @@ fn parity_tools() -> Vec<Value> {
         tool(
             TOOL_UPGRADE,
             "Upgrade",
-            "Upgrade agent-browser.",
+            "Upgrade the prcli npm package using the detected package manager.",
             json!({}),
             &[],
         ),
