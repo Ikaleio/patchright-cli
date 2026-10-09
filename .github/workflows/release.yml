@@ -114,7 +114,9 @@ jobs:
       - name: Install cross-compilation tools
         if: matrix.zigbuild
         run: |
-          uv tool install ziglang==0.15.2
+          uv venv /tmp/prcli-zig
+          uv pip install --python /tmp/prcli-zig/bin/python ziglang==0.15.2
+          echo 'CARGO_ZIGBUILD_PYTHON_PATH=/tmp/prcli-zig/bin/python' >> "$GITHUB_ENV"
           cargo install cargo-zigbuild --version 0.23.2 --locked
 
       - name: Build native CLI
